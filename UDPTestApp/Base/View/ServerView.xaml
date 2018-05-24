@@ -1,0 +1,37 @@
+﻿<UserControl x:Class="UDPTestApp.Base.ServerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:UDPTestApp.Base"
+             mc:Ignorable="d" >
+    <UserControl.Resources>
+        <local:ServerSocket x:Key="serverSocket" localAddress="127.0.0.1" />
+    </UserControl.Resources>
+    <GroupBox Header="Receive">
+        <DockPanel DataContext="{Binding Source={StaticResource serverSocket}}">
+            <Grid DockPanel.Dock="Bottom">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="130" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="50" />
+                </Grid.ColumnDefinitions>
+                <Button Name="connect" Grid.ColumnSpan="4" Width="100" HorizontalAlignment="Center" Command="{Binding runCommand}" Click="listenToggle">Listen</Button>
+                <Button Name="disconnect" Grid.ColumnSpan="4" Width="100" HorizontalAlignment="Center" Command="{Binding cancelCommand}" Visibility="Hidden" Click="listenToggle">Stop Listen</Button>
+                <TextBlock Padding="3" HorizontalAlignment="Right" VerticalAlignment="Center">Localhost Address:</TextBlock>
+                <TextBox Name="localAddr" Grid.Column="1" Width="75" HorizontalContentAlignment="Center" Text="{Binding localAddress}"/>
+                <TextBlock Grid.Column="2" Text="{Binding status}" Padding="3" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Button Name="clear" Margin="2,2" Grid.Column="3" Command="{Binding clearCommand}">Clear</Button>
+            </Grid>
+            <ListView Name="output" ItemsSource="{Binding feed}" ScrollViewer.ScrollChanged="output_ScrollChanged">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Time" Width="150" DisplayMemberBinding="{Binding timestamp, StringFormat={}[{0:0}]}"/>
+                        <GridViewColumn Header="Message" Width="420" DisplayMemberBinding="{Binding message}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </DockPanel>
+    </GroupBox>
+</UserControl>

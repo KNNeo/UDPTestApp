@@ -1,0 +1,77 @@
+﻿<UserControl x:Class="UDPTestApp.Base.ClientView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:UDPTestApp.Base.Client"
+             xmlns:base="clr-namespace:UDPTestApp.Base"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <base:ClientSocket x:Key="baseClient" remoteAddress="127.0.0.1" />
+        <local:PingClient x:Key="pingClient" sendCount="5" isRandom="False" isForever="False" pingSize="62" recvTimeout="400" output="Press F1 for help" />
+        <local:MsgClient x:Key="msgClient" />
+        <local:FileClient x:Key="fileClient" recvTimeout="4000" filename="Filename" />
+    </UserControl.Resources>
+    <StackPanel>
+        <GroupBox Header="Send" >
+            <TabControl Height="120" DataContext="{Binding Source={StaticResource pingClient}}" >
+                <TabItem Header="Ping/Settings" >
+                    <StackPanel Height="75" Width="620" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <WrapPanel>
+                            <Label Width="100" HorizontalContentAlignment="Right" >Target Address:</Label>
+                            <TextBox Name="remoteAddr" Width="85" HorizontalContentAlignment="Center" Text="{Binding Source={StaticResource baseClient}, Path=remoteAddress}"/>
+                            <Label Width="130" HorizontalContentAlignment="Right" >Packet Size (in bytes):</Label>
+                            <Slider Name="packetSize" MinWidth="180" Minimum="62" Maximum="1500" TickPlacement="None" TickFrequency="1" 
+                                    IsSnapToTickEnabled="True" Value="{Binding pingSize}" ></Slider>
+                            <TextBlock Padding="3" Width="30" Text="{Binding pingSize, StringFormat={}{0:0}}" ></TextBlock>
+                            <CheckBox Margin="3" Name="packetRandom" IsChecked="{Binding isRandom}">Random</CheckBox>
+                            <Label Width="100" HorizontalContentAlignment="Right" >Total Attempts:</Label>
+                            <Slider Name="sendCount" MinWidth="100" Minimum="5" Maximum="100" TickPlacement="BottomRight" TickFrequency="5" Value="{Binding sendCount}" />
+                            <TextBlock Padding="5" Width="25" Text="{Binding sendCount, StringFormat={}{0:0}}" ></TextBlock>
+                            <CheckBox Margin="3" Name="packetForever" IsChecked="{Binding isForever}">Infinite</CheckBox>
+                            <Label Width="105" HorizontalContentAlignment="Right" >Receive Timeout:</Label>
+                            <Slider Name="recvTimeout" MinWidth="100" Minimum="0" Maximum="16000" Ticks="0,100,200,400,800,1000,2000,4000,8000,16000"
+                                    TickPlacement="BottomRight" IsSnapToTickEnabled="True" Value="{Binding recvTimeout}" />
+                            <TextBlock Padding="5" Width="55" Text="{Binding recvTimeout, StringFormat={}{0:0}ms}" ></TextBlock>
+                            <Grid Margin="5,0,0,0">
+                                <Button Name="ping" Padding="5" Width="50" Command="{Binding runCommand}" Click="pingClick" Visibility="Visible">Ping</Button>
+                                <Button Name="cancelPing" Padding="5" Width="50" Command="{Binding cancelCommand}" Click="pingClick" Visibility="Hidden">Cancel</Button>
+                            </Grid>
+                        </WrapPanel>
+                        <TextBlock Name="pingStatus" HorizontalAlignment="Center" Text="{Binding output}" />
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Message" DataContext="{Binding Source={StaticResource msgClient}}" >
+                    <DockPanel >
+                        <Grid DockPanel.Dock="Top" >
+                            <TextBlock>Type your message and hit Send</TextBlock>
+                            <TextBlock HorizontalAlignment="Right" Text="{Binding ElementName=msgInput, Path=Text.Length, UpdateSourceTrigger=PropertyChanged, StringFormat={}({0:0}/1464 characters entered)}" />
+                        </Grid>
+                        <Button Name="send" DockPanel.Dock="Right" Margin="5" Width="75" MaxHeight="75" Command="{Binding runCommand}">Send</Button>
+                        <TextBox Name="msgInput" AcceptsReturn="False" TextWrapping="Wrap" MaxLength="1464" Text="{Binding message}" KeyDown="msgInput_KeyDown"/>
+                    </DockPanel>
+                </TabItem>
+                <TabItem Header="File Transfer" DataContext="{Binding Source={StaticResource fileClient}}" >
+                    <DockPanel Margin="10,0" >
+                        <TextBlock Name="fileOutput" DockPanel.Dock="Bottom" HorizontalAlignment="Center" Text="{Binding output}" />
+                        <Grid DockPanel.Dock="Bottom">
+                            <ProgressBar Name="fileStatus" Height="20" HorizontalContentAlignment="Center" Value="{Binding progress}" />
+                            <TextBlock Name="overlay" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding ElementName=fileStatus, Path=Value, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0}%}" />
+                        </Grid>
+                        <Grid DockPanel.Dock="Right" Width="75" MaxHeight="75" Margin="5,0,0,5"  >
+                            <Button Name="browse" Command="{Binding runCommand}" Click="fileClick" >Browse...</Button>
+                            <Button Name="cancelFile" Command="{Binding cancelCommand}" Visibility="Hidden" Click="fileClick" >Cancel</Button>
+                        </Grid>
+                        <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" >ms</TextBlock>
+                        <TextBox Name="delay" DockPanel.Dock="Right" Width="35" VerticalAlignment="Center" Text="{Binding sendTimeout}" />
+                        <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" >Packet Delay:</TextBlock>
+                        <TextBox Name="fileInput" DockPanel.Dock="Left" Margin="5,10" Height="25" IsEnabled="False" Text="{Binding filename}" />
+                    </DockPanel>
+                </TabItem>
+            </TabControl>
+        </GroupBox>
+        <Expander Header="Expander" Height="100" Width="100">
+            <Grid Background="#FFE5E5E5"/>
+        </Expander>
+    </StackPanel>
+</UserControl>
